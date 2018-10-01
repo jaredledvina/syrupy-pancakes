@@ -98,7 +98,7 @@ def cleanup_schedule(driver):
     # //*[@id="topTimelineMark"]
     # #minibannerbody > div.schedule > table > tbody > tr.instructor
 #{
-#  '8a': {
+#  '08:00': {
 #    'aircrafts': [
 #      'n222um',
 #      'n333um',
@@ -108,6 +108,20 @@ def cleanup_schedule(driver):
 #    'instructors' [
 #      'J. Jayne',
 #    ]
+#  },
+#  '08:30': {
+#    'aircrafts': [
+#      'n222um',
+#      'n333um',
+#    ],
+#    'instructors' [ ]
+#  },
+#  '09:00': {
+#    'aircrafts': [
+#      'n222um',
+#      'n333um',
+#    ],
+#    'instructors' [ ]
 #  }
 #}
 def find_instructor_times(driver):
