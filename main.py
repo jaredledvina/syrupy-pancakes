@@ -5,6 +5,8 @@ to automate the laborious actions needed to schedule flying lessions
 via https://skymanager.com
 '''
 
+from datetime import datetime
+from datetime import timedelta
 import logging
 import sys
 
@@ -89,15 +91,39 @@ def cleanup_schedule(driver):
     # Begin building not shit table data
     availible_times = {}
     for column in timerow.find_all('td'):
-        availible_times[column.text.strip()] = {}
+        time = column.text.strip() + 'm'
+        datetime.strptime(DATE + time, '%Y-%m-%d%I%p')
+        availible_times[time] = {}
+    # The schedule's global time is in hours but bookings are in 30 minute
+    # intervals, so we manually add those as potential availible_times
+    for availibility in availible_times:
+        availible_times[availibility +  timedelta(minutes=30)] = {}
+
     instructor_name = instructor.find_all('td')[0].find_all('a')[0].text.strip()
+
+    #HACK: SkyManger encodes some spaces in names with '\xa0', fix that
+    instructor_name = instructor_name.replace(u'\xa0', u' ')
+
     # Get instructor schedule
-    schedule = instructor.find_all('td', attrs={'class': ['Off', 'Pending', 'L', 'R', 'CheckedIn', 'CheckedOut']})
-    # Ideas:
-    # Iterate through table, find rows for:
-    # //*[@id="topTimelineMark"]
-    # #minibannerbody > div.schedule > table > tbody > tr.instructor
-#{
+    slot_types = ['Off', 'Pending', 'L', 'R', 'CheckedIn', 'CheckedOut']
+    slot_types_with_time = ['Pending', 'CheckedIn', 'CheckedOut']
+    slot_types_thirty_minute_markers = ['Off', 'L', 'R']
+    schedule = instructor.find_all('td', attrs={'class': slot_types})
+
+    # Pending, CheckedIn, and CheckedOut can cover multiple availible_times
+    # so, inspect each of them and pull out their total time, break that
+    # into 3 minute pieces
+    # Time format is either:
+    # 1. 9/30 12:00pm to 2:00pm
+    # 2. 9/16 4:00pm to 10/15 5:00pm
+    for slot in schedule:
+        slot_type = slot.get('class')[0]
+        if slot_type in slot_types_with_time:
+            pass #slot.getText().split('(jayne)')[1].split('\n')[0]
+        elif slot_type in slot_types_thirty_minute_markers:
+            pass #slow == 30?
+# Target Date format:
+#availible_times = {
 #  '08:00': {
 #    'aircrafts': [
 #      'n222um',
