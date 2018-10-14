@@ -5,6 +5,7 @@ to automate the laborious actions needed to schedule flying lessions
 via https://skymanager.com
 '''
 
+import argparse
 from datetime import datetime
 from datetime import timedelta
 import logging
@@ -61,20 +62,23 @@ def validate_length(name, iterable, length, operation='!='):
     return True
 
 
-def cleanup_schedule(driver):
+def get_schedule(driver):
     '''Returns a cleaned up version of the schedule'''
     soup = BeautifulSoup(driver.page_source, "html.parser")
+
     # First, grab the time schedule table
     tables = soup.find_all('table', attrs={'onclick': 'ResHelper.AddReservation(event);'})
     validate_length('schedule table', tables, 1)
     table = tables[0]
+
     # Pull out the tables body
     table_body = table.find_all('tbody')
     validate_length('schedule table body', table_body, 1)
+
     # Ensure there's only 1 time row
     timerows = table.find_all('tr', attrs={'id': 'topTimelineMark'})
-
     validate_length('time rows', timerows, 1)
+
     #TODO: Replace validate_length with assert
     #assert len(timerows) == 1, 'Failing because of time rows'
 
@@ -86,19 +90,33 @@ def cleanup_schedule(driver):
     instructors = table.find_all('tr', attrs={'class': 'instructor'})
     validate_length('instructors', instructors, 1)
     instructor = instructors[0]
+    return instructor, aircrafts, timerow
 
 
+def parse_schedule(instructor, aircrafts, timerow):
+    '''Attempts to parse this fucking schedule'''
     # Begin building not shit table data
     availible_times = {}
+    availible_times = parse_timerow(availible_times, timerow)
+    availible_times = parse_instructor(availible_times, instructor)
+    return availible_times
+
+
+def parse_timerow(availible_times, timerow):
+    '''Unfucks the global availibel times'''
     for column in timerow.find_all('td'):
         time = column.text.strip() + 'm'
-        datetime.strptime(DATE + time, '%Y-%m-%d%I%p')
-        availible_times[time] = {}
+        parsed_time = datetime.strptime(DATE + time, '%Y-%m-%d%I%p')
+        availible_times[parsed_time] = {}
     # The schedule's global time is in hours but bookings are in 30 minute
     # intervals, so we manually add those as potential availible_times
-    for availibility in availible_times:
+    for availibility in list(availible_times):
         availible_times[availibility +  timedelta(minutes=30)] = {}
+    return availible_times
 
+
+def parse_instructor(availible_times, instructor):
+    '''Unfucks the instructor schedule'''
     instructor_name = instructor.find_all('td')[0].find_all('a')[0].text.strip()
 
     #HACK: SkyManger encodes some spaces in names with '\xa0', fix that
@@ -106,19 +124,55 @@ def cleanup_schedule(driver):
 
     # Get instructor schedule
     slot_types = ['Off', 'Pending', 'L', 'R', 'CheckedIn', 'CheckedOut']
+    schedule = instructor.find_all('td', attrs={'class': slot_types})
+    schedule = parse_schedule_row(schedule)
+    return schedule
+
+
+def generate_datetime_range(start, end, delta=1800):
+    '''Returns array for range of time split by delta'''
+    current = start
+    datetime_range = []
+    while current < end:
+        datetime_range.append(current)
+        current += timedelta(seconds=delta)
+    return datetime_range
+
+
+def parse_schedule_row(schedule):
+    '''Reads through a schedule and understands it'''
+    slot_types = ['Off', 'Pending', 'L', 'R', 'CheckedIn', 'CheckedOut']
     slot_types_with_time = ['Pending', 'CheckedIn', 'CheckedOut']
     slot_types_thirty_minute_markers = ['Off', 'L', 'R']
-    schedule = instructor.find_all('td', attrs={'class': slot_types})
+
 
     # Pending, CheckedIn, and CheckedOut can cover multiple availible_times
     # so, inspect each of them and pull out their total time, break that
-    # into 3 minute pieces
+    # into 30 minute blocks
     # Time format is either:
     # 1. 9/30 12:00pm to 2:00pm
     # 2. 9/16 4:00pm to 10/15 5:00pm
     for slot in schedule:
         slot_type = slot.get('class')[0]
         if slot_type in slot_types_with_time:
+            divs = slot.find_all("div" )
+            for div in divs:
+                #TODO: hacky as fuck, there must be a cleaner way to find these
+                if len(div.text.strip()) < 50 and ' to ' in div.text.strip():
+                    time_range = div.text.strip()
+                    parsed_range = []
+                    for time in time_range.split(' to '):
+                        try:
+                            converted = datetime.strptime(time, '%m/%d %I:%M%p')
+                            parsed_range.append(converted)
+                        except ValueError:
+                            try:
+                                converted = datetime.strptime(time, '%I:%M%p')
+                                parsed_range.append(converted)
+                            except ValueError:
+                                LOG.error('Failed to parse time: {}'.format(time))
+                    return parsed_range
+
             pass #slot.getText().split('(jayne)')[1].split('\n')[0]
         elif slot_type in slot_types_thirty_minute_markers:
             pass #slow == 30?
@@ -150,6 +204,8 @@ def cleanup_schedule(driver):
 #    'instructors' [ ]
 #  }
 #}
+
+
 def find_instructor_times(driver):
     '''Attempts to find open timeslots for a lesson'''
     LOG.debug('Attempting to find all instructors')
@@ -200,6 +256,8 @@ def main():
     driver = setup()
     login(driver)
     navigate_schedule(driver, DATE)
+    get_schedule(driver)
+
 
 
 if __name__ == '__main__':
