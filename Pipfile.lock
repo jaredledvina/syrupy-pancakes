@@ -64,10 +64,10 @@
         },
         "soupsieve": {
             "hashes": [
-                "sha256:29bf6f6d4a641eb0a172c1a95bbc4466009cceaceb747a6e425efd7d0b5fbea2",
-                "sha256:7a89864492e82b92eac0097f966f30f5f96597ba1af3c3b5385b41bc92cebe55"
+                "sha256:057e08f362a255b457a5781675211556799ed3bb8807506eaac3809390bc304b",
+                "sha256:f7d99b41637be2f249dfcc06ae93c13fcbbdfa7bb68b15308cdd0734e58146f1"
             ],
-            "version": "==1.6"
+            "version": "==1.6.1"
         },
         "urllib3": {
             "hashes": [
