@@ -64,10 +64,10 @@
         },
         "soupsieve": {
             "hashes": [
-                "sha256:466910df7561796a60748826781ebe9a888f7a1668a636ae86783f44d10aae73",
-                "sha256:87db12ae79194f0ff9808d2b1641c4f031ae39ffa3cab6b907ea7c1e5e5ed445"
+                "sha256:afa56bf14907bb09403e5d15fbed6275caa4174d36b975226e3b67a3bb6e2c4b",
+                "sha256:eaed742b48b1f3e2d45ba6f79401b2ed5dc33b2123dfe216adb90d4bfa0ade26"
             ],
-            "version": "==1.7.3"
+            "version": "==1.8"
         },
         "urllib3": {
             "hashes": [
@@ -94,11 +94,11 @@
         },
         "ipython": {
             "hashes": [
-                "sha256:6a9496209b76463f1dec126ab928919aaf1f55b38beb9219af3fe202f6bbdd12",
-                "sha256:f69932b1e806b38a7818d9a1e918e5821b685715040b48e59c657b3c7961b742"
+                "sha256:06de667a9e406924f97781bda22d5d76bfb39762b678762d86a466e63f65dc39",
+                "sha256:5d3e020a6b5f29df037555e5c45ab1088d6a7cf3bd84f47e0ba501eeb0c3ec82"
             ],
             "index": "pypi",
-            "version": "==7.2.0"
+            "version": "==7.3.0"
         },
         "ipython-genutils": {
             "hashes": [
@@ -116,10 +116,10 @@
         },
         "parso": {
             "hashes": [
-                "sha256:6ecf7244be8e7283ec9009c72d074830e7e0e611c974f813d76db0390a4e0dd6",
-                "sha256:8162be7570ffb34ec0b8d215d7f3b6c5fab24f51eb3886d6dee362de96b6db94"
+                "sha256:4580328ae3f548b358f4901e38c0578229186835f0fa0846e47369796dd5bcc9",
+                "sha256:68406ebd7eafe17f8e40e15a84b56848eccbf27d7c1feb89e93d8fca395706db"
             ],
-            "version": "==0.3.3"
+            "version": "==0.3.4"
         },
         "pexpect": {
             "hashes": [
