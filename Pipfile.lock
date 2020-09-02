@@ -159,11 +159,10 @@
         },
         "traitlets": {
             "hashes": [
-                "sha256:0d9c4005506b306b0a99551e96174b8bedc675c2dd048f92b3bbbb7d86ac93a9",
-                "sha256:62a037f12ccb823fb05823afbe35fe0273bc18fa3202d0cf0ea8f24e97e464be"
+                "sha256:539e2fa2d0539953f0527b36ed107a69a89fe9deaa6ec4a03aee30c314d56d16"
             ],
             "index": "pypi",
-            "version": "==5.0.0"
+            "version": "==5.0.1"
         },
         "wcwidth": {
             "hashes": [
